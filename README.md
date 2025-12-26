@@ -1,99 +1,108 @@
-# Story Image Generator API
+# StoryLens MVP
 
-## Overview
+**Turn your favorite memories into timeless narratives.**
 
-This project is a Flask-based API designed to process story data, generate visual descriptions, and create images using the MidJourney API. It integrates various custom modules for story generation, visual description configuration, and image prompt generation. The generated images are posted to a webhook and stored in a SQLite database.
+StoryLens is a privacy-first, AI-powered application that transforms user-uploaded photos into personalized narrative stories. It uses **OpenAI's GPT-4o Vision** API to analyze images and generate empathetic, context-aware stories based on user-provided metadata.
 
-## Installation
+## Key Features
 
-1. **Clone the repository:**
+* **Privacy First**: No long-term storage of user images. Photos are processed and strictly deleted immediately after story generation.
+* **Vision AI**: Leveraging GPT-4o Vision for deep understanding of visual context, emotions, and atmosphere.
+* **Lean MVP**: A single, streamlined web flow—upload, contextualize, and read.
+* **Fast Response**: Optimized for low latency using the latest Chat Completions API.
 
-   ```bash
-   git clone https://github.com/your-username/story-image-generator.git
-   cd story-image-generator
-   ```
+## Project Structure
 
-2. **Create and activate a virtual environment:**
+```bash
+story-lens/
+├── app/
+│   ├── main.py              # Application entry point (Flask)
+│   ├── services/
+│   │   └── vision_service.py # Core Vision AI logic
+│   ├── utils/
+│   │   └── file_handler.py   # Secure file handling & cleanup
+│   └── templates/
+│       └── index.html        # Frontend MVP interface
+├── redundants/               # Archived legacy code
+├── requirements.txt          # Python dependencies
+├── run.py                    # Dev server runner
+└── README.md                 # Documentation
+```
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
+## Setup & Installation
 
-3. **Install dependencies:**
+1. **Clone the repository**:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+    ```bash
+    git clone <your-repo-url>
+    cd story-lens
+    ```
 
-4. **Set up environment variables:**
+2. **Create a virtual environment**:
 
-   Create a `.env` file in the project root and add the following:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
-   ```bash
-   FLASK_APP=app.py
-   FLASK_ENV=development
-   MID_API_KEY=your_midjourney_api_key
-   ```
+3. **Install dependencies**:
 
-5. **Initialize the database:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-   ```bash
-   flask db init
-   flask db migrate
-   flask db upgrade
-   ```
+4. **Configure Environment**:
+    Create a `.env` file in the root directory:
 
-## Usage
+    ```bash
+    cp .env.example .env
+    ```
 
-1. **Run the Flask application:**
+    Populate it with your keys:
 
-   ```bash
-   flask run
-   ```
+    ```env
+    OPENAI_API_KEY=your_openai_api_key
+    FLASK_ENV=production
+    ```
 
-2. **API Endpoints:**
+5. **Run Development Server**:
 
-   - **Process a Story:**
+    ```bash
+    python run.py
+    ```
 
-     ```http
-     POST /process-story
-     ```
+    Access the app at `http://127.0.0.1:5000`.
 
-     **Request Body:**
+## Deployment
 
-     ```json
-     {
-       "tripettoId": "unique_tripetto_id",
-       "order": "...",
-       "story_configuration": "...",
-       "visual_configuration": "..."
-     }
-     ```
+For production, use a WSGI server like **Gunicorn**:
 
-   - **Get Story Data:**
+1. Install Gunicorn:
 
-     ```http
-     GET /get-story-data/<tripetto_id>
-     ```
+    ```bash
+    pip install gunicorn
+    ```
 
-     **Response:**
+2. Run the application:
 
-     ```json
-     {
-       "tripettoId": "unique_tripetto_id",
-       "order": "...",
-       "story_configuration": "...",
-       "visual_configuration": "...",
-       "story": "...",
-       "image_urls": "..."
-     }
-     ```
+    ```bash
+    gunicorn -w 4 -b 0.0.0.0:8000 app.main:app
+    ```
 
-## Logging
+    * `-w 4`: Uses 4 worker processes for concurrency and faster response handling.
+    * `-b 0.0.0.0:8000`: Binds to port 8000 on all interfaces.
 
-The application uses Python's built-in logging module to log information, warnings, and errors. Logs are displayed in the console.
+### Optimization Tips
 
-## Error Handling
+* **GPT-4o**: We use the standard `gpt-4o` model which offers a great balance of speed and intelligence. For even faster responses (with slightly less nuance), you can switch the model in `app/services/vision_service.py` to `gpt-4o-mini` if available.
+* **Concurrency**: Gunicorn workers allow handling multiple requests simultaneously, essential for a web service.
 
-Global exception handling is implemented to capture and return JSON error responses.
+## Tech Stack
+
+* **Backend**: Python, Flask
+* **AI**: OpenAI GPT-4o (Vision + Chat Completions)
+* **Frontend**: HTML5, CSS3 (Privacy-First UI)
+* **Infrastructure**: Stateless, Ephemeral Storage
+
+---
+*Note: Legacy services from previous iterations (Tripetto integration, MidJourney generation) have been archived in the `redundants/` directory.*
